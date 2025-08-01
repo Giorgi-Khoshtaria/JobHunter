@@ -34,7 +34,7 @@ function Header() {
   ];
 
   return (
-    <header>
+    <header className="relative">
       <div className="flex items-center justify-between bg-indigo p-4">
         <div>
           <a href="/">
