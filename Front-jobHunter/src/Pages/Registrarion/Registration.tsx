@@ -1,32 +1,113 @@
 import React, { useState } from "react";
-
+import axios from "axios";
+import { useAuth } from "../../Context/authContect";
 function Registration() {
+  const { login } = useAuth();
+  const FRONT_URL = import.meta.env.VITE_REACT_APP_API_URL;
+
   const [formData, setFormData] = useState({
     companyName: "",
     email: "",
     password: "",
-    confirmPassword: "",
     website: "",
     description: "",
     companyType: "",
   });
+
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [errors, setErrors] = useState<{ [key: string]: string }>({});
 
   const handleChange = (
     e: React.ChangeEvent<
       HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
     >
   ) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+
+    if (name === "confirmPassword") {
+      setConfirmPassword(value);
+    } else {
+      setFormData({ ...formData, [name]: value });
+    }
+  };
+
+  const validateForm = () => {
+    const newErrors: { [key: string]: string } = {};
+
+    if (!formData.companyName.trim()) {
+      newErrors.companyName = "Company name is required.";
+    }
+
+    if (!formData.companyType.trim()) {
+      newErrors.companyType = "Company type is required.";
+    }
+
+    if (!formData.email.trim()) {
+      newErrors.email = "Email is required.";
+    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+      newErrors.email = "Invalid email format.";
+    }
+
+    if (!formData.password) {
+      newErrors.password = "Password is required.";
+    } else if (formData.password.length < 6) {
+      newErrors.password = "Password must be at least 6 characters.";
+    }
+
+    if (formData.password !== confirmPassword) {
+      newErrors.confirmPassword = "Passwords do not match.";
+    }
+
+    if (formData.website && !/^https?:\/\/.+/.test(formData.website)) {
+      newErrors.website = "Website must start with http:// or https://.";
+    }
+
+    if (!formData.description.trim()) {
+      newErrors.description = "Description is required.";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const registrationCompany = async () => {
+    try {
+      const res = await axios.post(`${FRONT_URL}/api/signUp`, {
+        ...formData,
+      });
+      console.log("Response:", res.data);
+
+      // Clear inputs on success
+      setFormData({
+        companyName: "",
+        email: "",
+        password: "",
+        website: "",
+        description: "",
+        companyType: "",
+      });
+      setConfirmPassword("");
+      setErrors({});
+      login(formData);
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        console.error("Error:", error.response?.data || error.message);
+      } else {
+        console.error("Unexpected error:", error);
+      }
+    }
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!validateForm()) return;
+
+    registrationCompany();
     console.log("Company Registration Data:", formData);
-    // TODO: submit data to backend
   };
 
   return (
-    <div className="min-h-screen  flex items-center justify-center p-4">
+    <div className="min-h-screen flex items-center justify-center p-4">
       <div className="bg-white rounded-xl shadow-lg w-full max-w-md p-8">
         <h1 className="text-2xl font-bold text-center mb-6 text-indigo">
           Company Registration
@@ -42,8 +123,10 @@ function Registration() {
               value={formData.companyName}
               onChange={handleChange}
               className="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-semiIndigo"
-              required
             />
+            {errors.companyName && (
+              <p className="text-red-500 text-sm mt-1">{errors.companyName}</p>
+            )}
           </div>
 
           <div>
@@ -55,7 +138,6 @@ function Registration() {
               value={formData.companyType}
               onChange={handleChange}
               className="w-full border rounded-lg px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-semiIndigo"
-              required
             >
               <option value="" disabled>
                 Select company type
@@ -69,6 +151,9 @@ function Registration() {
               <option value="Retail">Retail</option>
               <option value="Other">Other</option>
             </select>
+            {errors.companyType && (
+              <p className="text-red-500 text-sm mt-1">{errors.companyType}</p>
+            )}
           </div>
 
           <div>
@@ -81,8 +166,10 @@ function Registration() {
               value={formData.email}
               onChange={handleChange}
               className="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-semiIndigo"
-              required
             />
+            {errors.email && (
+              <p className="text-red-500 text-sm mt-1">{errors.email}</p>
+            )}
           </div>
 
           <div>
@@ -95,8 +182,10 @@ function Registration() {
               value={formData.password}
               onChange={handleChange}
               className="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-semiIndigo"
-              required
             />
+            {errors.password && (
+              <p className="text-red-500 text-sm mt-1">{errors.password}</p>
+            )}
           </div>
 
           <div>
@@ -106,11 +195,15 @@ function Registration() {
             <input
               type="password"
               name="confirmPassword"
-              value={formData.confirmPassword}
+              value={confirmPassword}
               onChange={handleChange}
               className="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-semiIndigo"
-              required
             />
+            {errors.confirmPassword && (
+              <p className="text-red-500 text-sm mt-1">
+                {errors.confirmPassword}
+              </p>
+            )}
           </div>
 
           <div>
@@ -125,6 +218,9 @@ function Registration() {
               className="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-semiIndigo"
               placeholder="https://example.com"
             />
+            {errors.website && (
+              <p className="text-red-500 text-sm mt-1">{errors.website}</p>
+            )}
           </div>
 
           <div>
@@ -139,11 +235,14 @@ function Registration() {
               className="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-semiIndigo"
               placeholder="Brief description about your company..."
             ></textarea>
+            {errors.description && (
+              <p className="text-red-500 text-sm mt-1">{errors.description}</p>
+            )}
           </div>
 
           <button
             type="submit"
-            className="w-full bg-indigo hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-lg transition-colors"
+            className=" cursor-pointer w-full bg-indigo hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-lg transition-colors"
           >
             Register Company
           </button>
