@@ -2,7 +2,7 @@ import express from "express";
 import mongoose from "mongoose";
 import cors from "cors";
 import dotenv from "dotenv";
-import { signUp } from "./Controllers/auth.controllers.js";
+import authRouter from "./Routes/auth.route.js";
 
 const app = express();
 dotenv.config();
@@ -25,4 +25,4 @@ app.listen(PORT, () => {
   console.log(`Server is running on port  ${PORT} `);
 });
 
-app.use("/api", signUp);
+app.use("/api", authRouter);
