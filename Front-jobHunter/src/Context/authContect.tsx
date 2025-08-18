@@ -3,9 +3,6 @@ import { createContext, useContext, useEffect, useState } from "react";
 interface UserData {
   companyName: string;
   email: string;
-  website?: string;
-  description?: string;
-  companyType: string;
 }
 
 interface AuthContextType {

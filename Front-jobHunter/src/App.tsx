@@ -6,6 +6,8 @@ import AboutPage from "./Pages/AboutPage/AboutPage";
 import Contact from "./Pages/ContactPage/Contact";
 import Registration from "./Pages/Registrarion/Registration";
 import Login from "./Pages/Login/Login";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const router = createBrowserRouter([
   {
@@ -37,7 +39,12 @@ const router = createBrowserRouter([
 ]);
 
 const App = () => {
-  return <RouterProvider router={router} />;
+  return (
+    <>
+      <RouterProvider router={router} />
+      <ToastContainer position="top-right" autoClose={3000} />
+    </>
+  );
 };
 
 export default App;

@@ -1,41 +1,53 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useAuth } from "../../Context/authContect";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import { useNavigate } from "react-router-dom";
+
 function Registration() {
-  const { login } = useAuth();
+  const { login, isAuthenticated } = useAuth();
+  const navigate = useNavigate();
   const FRONT_URL = import.meta.env.VITE_REACT_APP_API_URL;
 
   const [formData, setFormData] = useState({
     companyName: "",
     email: "",
-    password: "",
     website: "",
     description: "",
     companyType: "",
   });
 
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [password, setpassword] = useState("");
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
-
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate("/");
+    }
+  }, [isAuthenticated, navigate]);
   const handleChange = (
     e: React.ChangeEvent<
       HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
     >
   ) => {
     const { name, value } = e.target;
-
-    if (name === "confirmPassword") {
+    if (name === "password") {
+      setpassword(value);
+    } else if (name === "confirmPassword") {
       setConfirmPassword(value);
     } else {
       setFormData({ ...formData, [name]: value });
     }
   };
-
+  const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{6,}$/;
   const validateForm = () => {
     const newErrors: { [key: string]: string } = {};
 
     if (!formData.companyName.trim()) {
       newErrors.companyName = "Company name is required.";
+    } else if (!/^[a-zA-Z0-9\s-]+$/.test(formData.companyName)) {
+      newErrors.companyName = "Company name cannot contain special characters.";
     }
 
     if (!formData.companyType.trim()) {
@@ -48,13 +60,12 @@ function Registration() {
       newErrors.email = "Invalid email format.";
     }
 
-    if (!formData.password) {
-      newErrors.password = "Password is required.";
-    } else if (formData.password.length < 6) {
-      newErrors.password = "Password must be at least 6 characters.";
+    if (!passwordRegex.test(password)) {
+      newErrors.password =
+        "Password must be at least 6 characters, include 1 uppercase, 1 lowercase, and 1 number.";
     }
 
-    if (formData.password !== confirmPassword) {
+    if (password !== confirmPassword) {
       newErrors.confirmPassword = "Passwords do not match.";
     }
 
@@ -74,26 +85,37 @@ function Registration() {
     try {
       const res = await axios.post(`${FRONT_URL}/api/signUp`, {
         ...formData,
+        password,
       });
       console.log("Response:", res.data);
 
-      // Clear inputs on success
+      toast.success("User created successfully 🎉");
+
       setFormData({
         companyName: "",
         email: "",
-        password: "",
         website: "",
         description: "",
         companyType: "",
       });
+      setpassword("");
       setConfirmPassword("");
       setErrors({});
-      login(formData);
-    } catch (error) {
-      if (axios.isAxiosError(error)) {
-        console.error("Error:", error.response?.data || error.message);
+      login({
+        email: formData.email,
+        companyName: formData.companyName,
+      });
+      navigate("/");
+    } catch (err: unknown) {
+      if (axios.isAxiosError(err)) {
+        if (err.response?.status === 409) {
+          toast.error(`${err.response.data.message} ❌`);
+        } else {
+          toast.error("Registration failed ❌");
+        }
       } else {
-        console.error("Unexpected error:", error);
+        // Fallback for non-Axios errors
+        toast.error("An unexpected error occurred ❌");
       }
     }
   };
@@ -179,7 +201,7 @@ function Registration() {
             <input
               type="password"
               name="password"
-              value={formData.password}
+              value={password}
               onChange={handleChange}
               className="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-semiIndigo"
             />
