@@ -56,6 +56,14 @@ function Login() {
   return (
     <div className="min-h-screen flex items-center justify-center p-4">
       <div className="bg-white rounded-xl shadow-lg w-full max-w-md p-8">
+        <div>
+          <a
+            href="/"
+            className="text-blue-600 hover:text-blue-800 underline transition-colors duration-300"
+          >
+            Go Back
+          </a>
+        </div>
         <h1 className="text-2xl font-bold text-center mb-6 text-indigo">
           Login
         </h1>
@@ -106,6 +114,23 @@ function Login() {
             Login
           </button>
         </form>
+        <div className="mt-4 flex flex-col items-center gap-2 text-sm">
+          <a
+            href="/employer/forgot-password"
+            className="text-indigo hover:underline"
+          >
+            Forgot password?
+          </a>
+          <p className="text-gray-600">
+            Don’t have an account?{" "}
+            <a
+              href="/employer/register"
+              className="text-indigo font-semibold hover:underline"
+            >
+              Register
+            </a>
+          </p>
+        </div>
       </div>
     </div>
   );

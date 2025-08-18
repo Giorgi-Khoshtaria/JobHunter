@@ -131,7 +131,15 @@ function Registration() {
   return (
     <div className="min-h-screen flex items-center justify-center p-4">
       <div className="bg-white rounded-xl shadow-lg w-full max-w-md p-8">
-        <h1 className="text-2xl font-bold text-center mb-6 text-indigo">
+        <div>
+          <a
+            href="/"
+            className="text-blue-600 hover:text-blue-800 underline transition-colors duration-300"
+          >
+            Go Back
+          </a>
+        </div>
+        <h1 className="text-2xl font-bold text-center mb-6 text-indigo mt-3">
           Company Registration
         </h1>
         <form className="space-y-4" onSubmit={handleSubmit}>
