@@ -2,13 +2,30 @@ import React, { useState, useEffect, useRef } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBars, faXmark } from "@fortawesome/free-solid-svg-icons";
 import logo from "../../assets/jobHunter-logo.png";
+import { useAuth } from "../../Context/authContect";
 
 function Header() {
+  const { isAuthenticated, logout } = useAuth();
   const [open, setOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const [profileModalOpen, setProfileModalOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
-  const buttonRef = useRef<HTMLButtonElement>(null);
+  const profileRef = useRef<HTMLDivElement>(null);
 
+  const buttonRef = useRef<HTMLButtonElement>(null);
+  const [companyName, setCompanyName] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      const storedData = localStorage.getItem("userData");
+      console.log(storedData);
+      setCompanyName(storedData ? JSON.parse(storedData).companyName : null);
+    }
+  }, [isAuthenticated]);
+  const handleLogout = () => {
+    setProfileModalOpen(false);
+    logout(); // your existing logout function
+  };
   useEffect(() => {
     const handleDropDown = (event: MouseEvent) => {
       const target = event.target as HTMLElement;
@@ -20,12 +37,15 @@ function Header() {
       ) {
         setOpen(false);
       }
+      if (profileRef.current && !profileRef.current.contains(target)) {
+        setProfileModalOpen(false);
+      }
     };
     document.addEventListener("mousedown", handleDropDown);
     return () => {
       document.removeEventListener("mousedown", handleDropDown);
     };
-  });
+  }, []);
 
   const navArray = [
     { name: "Home", path: "/" },
@@ -56,16 +76,24 @@ function Header() {
             ))}
           </ul>
         </nav>
-
-        <div className="relative max-sm:hidden">
-          <button
-            onClick={() => setOpen(!open)}
-            ref={buttonRef}
-            className="cursor-pointer ml-6 px-4 py-2 text-white rounded hover:bg-indigo-700 transition"
+        {isAuthenticated ? (
+          <div
+            onClick={() => setProfileModalOpen(!profileModalOpen)}
+            className="cursor-pointer"
           >
-            For Employers
-          </button>
-        </div>
+            <p className="text-white">{companyName}</p>
+          </div>
+        ) : (
+          <div className="relative max-sm:hidden">
+            <button
+              onClick={() => setOpen(!open)}
+              ref={buttonRef}
+              className="cursor-pointer ml-6 px-4 py-2 text-white rounded hover:bg-indigo-700 transition"
+            >
+              For Employers
+            </button>
+          </div>
+        )}
 
         <div className="hidden max-sm:flex">
           <button onClick={() => setIsMobile(true)}>
@@ -77,6 +105,18 @@ function Header() {
           </button>
         </div>
       </div>
+
+      {profileModalOpen && (
+        <div
+          ref={profileRef}
+          className="absolute right-5 top-16 bg-white shadow-lg rounded-lg p-4 z-50"
+        >
+          <a href="/profile">Profile</a>
+          <div>
+            <button onClick={handleLogout}>LogOut</button>
+          </div>
+        </div>
+      )}
 
       {open && (
         <div
