@@ -8,8 +8,16 @@ dotenv.config();
 const JWT_SECRET = process.env.APP_TOKEN_URL;
 
 export const signUp = async (req, res, next) => {
-  const { companyName, email, password, website, description, companyType } =
-    req.body;
+  const {
+    companyName,
+    country,
+    city,
+    email,
+    password,
+    website,
+    description,
+    companyType,
+  } = req.body;
 
   try {
     const existingUser = await User.findOne({ email });
@@ -31,6 +39,8 @@ export const signUp = async (req, res, next) => {
       website,
       description,
       companyType,
+      country,
+      city,
     });
 
     const token = jwt.sign({ id: newUser._id }, JWT_SECRET, {
@@ -45,6 +55,8 @@ export const signUp = async (req, res, next) => {
         email: newUser.email,
         companyType: newUser.companyType,
         description: newUser.description,
+        country: newUser.country,
+        city: newUser.city,
       },
       token,
     });
