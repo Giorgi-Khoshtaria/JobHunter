@@ -11,6 +11,7 @@ import "react-toastify/dist/ReactToastify.css";
 import ForgotPassword from "./Pages/ForgotPassword/ForgotPassword";
 import AddVacancy from "./Pages/Addvacancy/AddVacancy";
 import CompanyProfile from "./Pages/Profile/ComanyProfile";
+import CompanyProfileEdit from "./Pages/Profile/CompanyProfileEdit";
 
 const router = createBrowserRouter([
   {
@@ -36,6 +37,10 @@ const router = createBrowserRouter([
       {
         path: "profile",
         element: <CompanyProfile />,
+      },
+      {
+        path: "profile/edit",
+        element: <CompanyProfileEdit />,
       },
     ],
   },

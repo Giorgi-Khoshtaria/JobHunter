@@ -1,47 +1,23 @@
-import React, { use, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useAuth } from "../../Context/authContect";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import type { UserProfileData } from "../../Types/userTypes";
 import ProfileField from "./ProfileField";
-
-type UserProfileData = {
-  companyImage: string;
-  companyName?: string;
-  companyType?: string;
-  country?: string;
-  city?: string;
-  website?: string;
-  description?: string;
-  email?: string;
-  role?: string;
-  createdAt?: string;
-  updatedAt?: string;
-};
+import { fetchUserData } from "../../Utils/userUtils/userUtils";
 
 function CompanyProfile() {
   const { userData, logout } = useAuth();
   const navigate = useNavigate();
+
   const [userProfileData, setUserProfileData] =
     useState<UserProfileData | null>(null);
-  const FRONT_URL = import.meta.env.VITE_REACT_APP_API_URL;
+
   const userId = userData?.id;
 
-  const fetchUserData = async () => {
-    try {
-      const response = await axios.get(`${FRONT_URL}/user/profile/${userId}`, {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      });
-      setUserProfileData(response.data);
-    } catch (error) {
-      console.error("Error fetching user data:", error);
-    }
-  };
-
   useEffect(() => {
-    if (userId) fetchUserData();
+    if (userId) {
+      fetchUserData(userId, setUserProfileData);
+    }
   }, [userId]);
 
   const handleLogout = () => {
@@ -76,7 +52,7 @@ function CompanyProfile() {
         : "",
     },
   ];
-
+  console.log(userProfileData.companyImage);
   return (
     <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
       <div className="max-w-3xl mx-auto">
@@ -121,12 +97,13 @@ function CompanyProfile() {
                 <div className="w-48 h-48 rounded-lg overflow-hidden border border-gray-300">
                   {userProfileData.companyImage ? (
                     <img
+                      className="w-full h-full object-cover"
                       src={
-                        userProfileData.companyImage ||
-                        "https://via.placeholder.com/200?text=Company+Image"
+                        userProfileData.companyImage
+                          ? userProfileData.companyImage
+                          : "https://via.placeholder.com/200?text=Company+Image"
                       }
                       alt="Company"
-                      className="w-full h-full object-cover"
                     />
                   ) : (
                     <div className="flex items-center justify-center h-full">
