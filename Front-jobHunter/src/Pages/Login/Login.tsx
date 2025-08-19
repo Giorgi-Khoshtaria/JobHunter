@@ -38,10 +38,15 @@ function Login() {
     }
 
     try {
-      await axios.post(`${FRONT_URL}/api/login`, { ...formData });
+      const res = await axios.post(`${FRONT_URL}/api/login`, { ...formData });
       toast.success("Login successful 🎉");
-
-      login({ email: formData.email, companyName: formData.companyName });
+      const token = res.data.token;
+      localStorage.setItem("token", token);
+      login({
+        email: formData.email,
+        companyName: formData.companyName,
+        id: res.data.user.id,
+      });
       navigate("/");
       setFormData({ companyName: "", email: "", password: "" });
     } catch (err: unknown) {

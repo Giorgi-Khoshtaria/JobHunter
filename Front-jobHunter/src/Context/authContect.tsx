@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useState } from "react";
 
 interface UserData {
+  id: string;
   companyName: string;
   email: string;
 }

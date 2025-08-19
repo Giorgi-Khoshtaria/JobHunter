@@ -3,6 +3,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBars, faXmark } from "@fortawesome/free-solid-svg-icons";
 import logo from "../../assets/jobHunter-logo.png";
 import { useAuth } from "../../Context/authContect";
+import { useNavigate } from "react-router-dom";
 
 function Header() {
   const { isAuthenticated, logout } = useAuth();
@@ -11,10 +12,11 @@ function Header() {
   const [profileModalOpen, setProfileModalOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const profileRef = useRef<HTMLDivElement>(null);
+  const companyNameRef = useRef<HTMLDivElement>(null); // Add this ref for company name
 
   const buttonRef = useRef<HTMLButtonElement>(null);
   const [companyName, setCompanyName] = useState<string | null>(null);
-
+  const navigate = useNavigate();
   useEffect(() => {
     if (isAuthenticated) {
       const storedData = localStorage.getItem("userData");
@@ -22,13 +24,18 @@ function Header() {
       setCompanyName(storedData ? JSON.parse(storedData).companyName : null);
     }
   }, [isAuthenticated]);
+
   const handleLogout = () => {
     setProfileModalOpen(false);
-    logout(); // your existing logout function
+    logout();
+    navigate("/");
   };
+
   useEffect(() => {
     const handleDropDown = (event: MouseEvent) => {
       const target = event.target as HTMLElement;
+
+      // Close dropdown if clicked outside
       if (
         dropdownRef.current &&
         !dropdownRef.current.contains(target) &&
@@ -37,10 +44,18 @@ function Header() {
       ) {
         setOpen(false);
       }
-      if (profileRef.current && !profileRef.current.contains(target)) {
+
+      // Close profile modal if clicked outside
+      if (
+        profileRef.current &&
+        !profileRef.current.contains(target) &&
+        companyNameRef.current &&
+        !companyNameRef.current.contains(target)
+      ) {
         setProfileModalOpen(false);
       }
     };
+
     document.addEventListener("mousedown", handleDropDown);
     return () => {
       document.removeEventListener("mousedown", handleDropDown);
@@ -76,45 +91,53 @@ function Header() {
             ))}
           </ul>
         </nav>
-        {isAuthenticated ? (
-          <div
-            onClick={() => setProfileModalOpen(!profileModalOpen)}
-            className="cursor-pointer"
-          >
-            <p className="text-white">{companyName}</p>
-          </div>
-        ) : (
-          <div className="relative max-sm:hidden">
-            <button
-              onClick={() => setOpen(!open)}
-              ref={buttonRef}
-              className="cursor-pointer ml-6 px-4 py-2 text-white rounded hover:bg-indigo-700 transition"
+        <div className="flex items-center gap-4">
+          {isAuthenticated ? (
+            <div
+              ref={companyNameRef} // Add ref here
+              onClick={() => setProfileModalOpen(!profileModalOpen)}
+              className="cursor-pointer"
             >
-              For Employers
+              <p className="text-white">{companyName}</p>
+            </div>
+          ) : (
+            <div className="relative max-sm:hidden">
+              <button
+                onClick={() => setOpen(!open)}
+                ref={buttonRef}
+                className="cursor-pointer ml-6 px-4 py-2 text-white rounded hover:bg-indigo-700 transition"
+              >
+                For Employers
+              </button>
+            </div>
+          )}
+
+          <div className="hidden max-sm:flex">
+            <button onClick={() => setIsMobile(true)}>
+              <FontAwesomeIcon
+                icon={faBars}
+                size="xl"
+                style={{ color: "#ffffff" }}
+              />
             </button>
           </div>
-        )}
-
-        <div className="hidden max-sm:flex">
-          <button onClick={() => setIsMobile(true)}>
-            <FontAwesomeIcon
-              icon={faBars}
-              size="xl"
-              style={{ color: "#ffffff" }}
-            />
-          </button>
         </div>
       </div>
 
       {profileModalOpen && (
         <div
           ref={profileRef}
-          className="absolute right-5 top-16 bg-white shadow-lg rounded-lg p-4 z-50"
+          className="absolute right-5 top-16 bg-white shadow-lg rounded-lg p-4 z-50 flex flex-col gap-2"
         >
-          <a href="/profile">Profile</a>
-          <div>
-            <button onClick={handleLogout}>LogOut</button>
-          </div>
+          <a href="/profile" className="hover:underline">
+            Profile
+          </a>
+          <a href="/addVacancy" className="hover:underline">
+            Add Vacancy
+          </a>
+          <button onClick={handleLogout} className="hover:underline text-left">
+            LogOut
+          </button>
         </div>
       )}
 

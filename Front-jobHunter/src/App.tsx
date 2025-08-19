@@ -9,6 +9,8 @@ import Login from "./Pages/Login/Login";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import ForgotPassword from "./Pages/ForgotPassword/ForgotPassword";
+import AddVacancy from "./Pages/Addvacancy/AddVacancy";
+import CompanyProfile from "./Pages/Profile/ComanyProfile";
 
 const router = createBrowserRouter([
   {
@@ -26,6 +28,14 @@ const router = createBrowserRouter([
       {
         path: "Contact",
         element: <Contact />,
+      },
+      {
+        path: "addVacancy",
+        element: <AddVacancy />,
+      },
+      {
+        path: "profile",
+        element: <CompanyProfile />,
       },
     ],
   },
