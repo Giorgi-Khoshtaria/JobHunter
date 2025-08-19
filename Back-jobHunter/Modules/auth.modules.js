@@ -7,6 +7,7 @@ const authSchema = new mongoose.Schema(
       default: "CompanyUser",
     },
     companyName: { type: String, required: true, unique: true },
+    companyImage: { type: String },
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true },
     website: { type: String },
