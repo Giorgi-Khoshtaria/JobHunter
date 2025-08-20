@@ -119,8 +119,8 @@ function AddVacancy() {
       toast.error("Title must be at least 3 characters ❌");
       return;
     }
-    if (formData.title.length > 35) {
-      toast.error("Title must be less than 100 characters ❌");
+    if (formData.title.length > 20) {
+      toast.error("Title must be less than 20 characters ❌");
       return;
     }
     if (!/^[a-zA-Z0-9\s\-&.,!()]+$/.test(formData.title)) {
@@ -143,8 +143,8 @@ function AddVacancy() {
       toast.error("Location must be at least 2 characters ❌");
       return;
     }
-    if (formData.location.length > 100) {
-      toast.error("Location must be less than 100 characters ❌");
+    if (formData.location.length > 15) {
+      toast.error("Location must be less than 15 characters ❌");
       return;
     }
 
@@ -228,7 +228,7 @@ function AddVacancy() {
     try {
       const imageName = await getCompanyImageName(userData?.id || "");
       await axios.post(
-        `${FRONT_URL}/api/vacancies`,
+        `${FRONT_URL}/vacancies/vacancy`,
         {
           ...submissionData,
           companyId: userData?.id,

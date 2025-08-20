@@ -107,11 +107,7 @@ function Header() {
             >
               <p className="text-white">{companyName}</p>
               <img
-                src={
-                  companyImage
-                    ? `../../../public/uploads/${companyImage}`
-                    : UserIcon
-                }
+                src={companyImage ? `/uploads/${companyImage}` : UserIcon}
                 alt="userIcon"
                 className="w-8 h-8 rounded-full object-cover"
               />
