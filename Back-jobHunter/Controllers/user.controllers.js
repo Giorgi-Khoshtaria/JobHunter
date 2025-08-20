@@ -25,16 +25,20 @@ const storage = multer.diskStorage({
   },
 });
 
+// Multer configuration
 export const upload = multer({
-  storage: storage,
+  storage,
   limits: {
     fileSize: 5 * 1024 * 1024, // 5MB limit
   },
-  fileFilter: function (req, file, cb) {
+  fileFilter: (req, file, cb) => {
     if (file.mimetype.startsWith("image/")) {
       cb(null, true);
     } else {
-      cb(new Error("Only image files are allowed!"), false);
+      // Throw proper multer error for invalid file type
+      const error = new multer.MulterError("LIMIT_UNEXPECTED_FILE");
+      error.message = "Only image files are allowed!";
+      cb(error, false);
     }
   },
 });
@@ -59,7 +63,6 @@ export const getUserProfile = async (req, res) => {
   }
 };
 
-// EDIT User Profile
 export const editProfile = async (req, res) => {
   const userId = req.params.userId;
 
@@ -83,8 +86,9 @@ export const editProfile = async (req, res) => {
       new: true,
     }).select("-password");
 
-    if (!updatedUser)
+    if (!updatedUser) {
       return res.status(404).json({ message: "User not found" });
+    }
 
     if (updatedUser.companyImage) {
       updatedUser.companyImage = `/public/uploads/${updatedUser.companyImage}`;
@@ -92,19 +96,35 @@ export const editProfile = async (req, res) => {
 
     res.json({ message: "Profile updated successfully", user: updatedUser });
   } catch (error) {
+    // Handle Multer-specific errors
+    if (error instanceof multer.MulterError) {
+      if (error.code === "LIMIT_FILE_SIZE") {
+        return res
+          .status(400)
+          .json({ message: "Image size cannot exceed 5MB" });
+      }
+      if (error.code === "LIMIT_UNEXPECTED_FILE") {
+        return res
+          .status(400)
+          .json({ message: "Only image files are allowed!" });
+      }
+    }
+
     console.error("Edit profile error:", error);
-    res.status(500).json({ status: "error", message: "Internal server error" });
+    return res.status(500).json({ message: "Internal server error" });
   }
 };
+// Return JSON with companyImage filename
+// Just return the companyImage filename
+export const getCompanyImageByUserId = async (req, res) => {
+  const userId = req.params.userId;
 
-// Serve uploaded files
-export const serveUploadedFile = async (req, res) => {
-  const filename = req.params.filename;
-  const filePath = path.join(uploadsDir, filename);
+  try {
+    const user = await User.findById(userId).select("companyImage");
 
-  if (fs.existsSync(filePath)) {
-    res.sendFile(filePath);
-  } else {
-    res.status(404).json({ message: "File not found" });
+    res.json({ companyImage: user.companyImage }); // just the string
+  } catch (error) {
+    console.error("Get company image error:", error);
+    res.status(500).json({ message: "Internal server error" });
   }
 };

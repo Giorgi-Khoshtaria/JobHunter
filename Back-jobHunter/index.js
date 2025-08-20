@@ -5,6 +5,7 @@ import dotenv from "dotenv";
 import path from "path";
 import authRouter from "./Routes/auth.route.js";
 import userRouter from "./Routes/user.route.js";
+import vacancyRouter from "./Routes/vacancy.route.js";
 
 const app = express();
 dotenv.config();
@@ -17,11 +18,10 @@ app.use(cors());
 app.use(express.json({ limit: "10mb" })); // for JSON bodies
 app.use(express.urlencoded({ limit: "10mb", extended: true })); // for form data
 
-// Serve frontend uploads folder
-
 // Routes
 app.use("/api", authRouter);
 app.use("/user", userRouter);
+app.use("/api", vacancyRouter);
 
 // MongoDB connection
 mongoose
