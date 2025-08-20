@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import type { UserProfileData } from "../../Types/userTypes";
 import {
   fetchUserData,
+  getCompanyImageName,
   updateUserProfile,
 } from "../../Utils/userUtils/userUtils";
 
@@ -18,7 +19,7 @@ interface FormField {
 function CompanyProfileEdit() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-  const { userData } = useAuth();
+  const { userData, setCompanyImage } = useAuth();
   const navigate = useNavigate();
   const [formData, setFormData] = useState<UserProfileData>({
     companyName: "",
@@ -89,10 +90,10 @@ function CompanyProfileEdit() {
 
     try {
       await updateUserProfile(userId, data);
+      getCompanyImageName(userId, setCompanyImage);
       navigate("/profile");
     } catch (error) {
       console.error("Error updating profile:", error);
-      alert("Error updating profile. Please try again.");
     }
   };
 

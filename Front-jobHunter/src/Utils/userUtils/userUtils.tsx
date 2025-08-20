@@ -1,5 +1,6 @@
 import axios from "axios";
 import type { UserProfileData } from "../../Types/userTypes";
+import { toast } from "react-toastify";
 
 const FRONT_URL = import.meta.env.VITE_REACT_APP_API_URL;
 
@@ -34,15 +35,49 @@ export const updateUserProfile = async (userId: string, formData: FormData) => {
         },
       }
     );
+
+    toast.success("Profile updated successfully!");
     return res.data;
   } catch (error: unknown) {
-    if (axios.isAxiosError(error)) {
-      console.error("Error updating profile:", error.response || error.message);
-    } else if (error instanceof Error) {
-      console.error("Error updating profile:", error.message);
-    } else {
-      console.error("Error updating profile:", error);
+    let message = "Something went wrong. Please try again.";
+
+    if (axios.isAxiosError(error) && error.response) {
+      message = error.response.data?.message || message;
     }
+
+    toast.error(message);
     throw error;
+  }
+};
+
+export const getCompanyImageName = async (
+  userId: string,
+  callback?: (filename: string | null) => void
+) => {
+  try {
+    const token = localStorage.getItem("token");
+    const res = await axios.get(`${FRONT_URL}/user/companyImage/${userId}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    // Call the callback only if it was provided
+    if (callback) {
+      callback(res.data.companyImage || null);
+    }
+
+    return res.data.companyImage || null;
+  } catch (error) {
+    let message = "Something went wrong. Please try again.";
+    if (axios.isAxiosError(error) && error.response) {
+      message = error.response.data?.message || message;
+    }
+    toast.error(message);
+
+    // Call the callback only if it was provided
+    if (callback) {
+      callback(null);
+    }
+
+    return null;
   }
 };

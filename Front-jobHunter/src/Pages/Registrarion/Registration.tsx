@@ -116,8 +116,15 @@ function Registration() {
       });
       console.log("Response:", res.data);
 
+      const user = res.data.user;
+
       toast.success("User created successfully 🎉");
 
+      login({
+        id: user.id,
+        email: user.email,
+        companyName: user.companyName,
+      });
       setFormData({
         companyName: "",
         email: "",
@@ -130,11 +137,6 @@ function Registration() {
       setpassword("");
       setConfirmPassword("");
       setErrors({});
-      login({
-        email: formData.email,
-        companyName: formData.companyName,
-        id: res.data.user._id,
-      });
       navigate("/");
     } catch (err: unknown) {
       if (axios.isAxiosError(err)) {

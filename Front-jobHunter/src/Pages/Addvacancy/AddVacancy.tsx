@@ -3,10 +3,46 @@ import axios from "axios";
 import { useAuth } from "../../Context/authContect";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
+import { getCompanyImageName } from "../../Utils/userUtils/userUtils";
+
 const FRONT_URL = import.meta.env.VITE_REACT_APP_API_URL;
 
+// Employment type options
+const EMPLOYMENT_TYPES = [
+  "Full-time",
+  "Part-time",
+  "Contract",
+  "Internship",
+  "Other",
+] as const;
+
+// Common vacancy categories
+const COMMON_CATEGORIES = [
+  "IT & Software",
+  "Security",
+  "Food & Hospitality",
+  "PR & Marketing",
+  "Healthcare",
+  "Education",
+  "Finance",
+  "Sales",
+  "Customer Service",
+  "Construction",
+  "Manufacturing",
+  "Transportation",
+  "Retail",
+  "Design & Creative",
+  "Engineering",
+  "Human Resources",
+  "Legal",
+  "Other",
+] as const;
+
+type EmploymentType = (typeof EMPLOYMENT_TYPES)[number];
+type Category = (typeof COMMON_CATEGORIES)[number];
+
 function AddVacancy() {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, userData } = useAuth();
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
@@ -15,14 +51,54 @@ function AddVacancy() {
     location: "",
     salary: "",
     requirements: "",
-    deadline: "",
+    applicationDeadline: "",
+    employmentType: "" as EmploymentType | "",
+    jobCategory: "" as Category | "",
+    customCategory: "",
   });
 
+  const [showCustomCategory, setShowCustomCategory] = useState(false);
+  // const [companyImage, setCompanyImage] = useState<string | null>(null);
+
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >
   ) => {
     const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
+
+    if (name === "jobCategory") {
+      if (value === "Other") {
+        setShowCustomCategory(true);
+        setFormData({
+          ...formData,
+          jobCategory: "Other" as Category,
+          customCategory: "",
+        });
+      } else {
+        setShowCustomCategory(false);
+        setFormData({
+          ...formData,
+          jobCategory: value as Category,
+          customCategory: "",
+        });
+      }
+    } else {
+      setFormData({ ...formData, [name]: value });
+    }
+  };
+  const handleFieldReset = () => {
+    setFormData({
+      title: "",
+      description: "",
+      location: "",
+      salary: "",
+      requirements: "",
+      applicationDeadline: "",
+      employmentType: "",
+      jobCategory: "",
+      customCategory: "",
+    });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -31,26 +107,154 @@ function AddVacancy() {
     if (
       !formData.title.trim() ||
       !formData.description.trim() ||
-      !formData.location.trim()
+      !formData.location.trim() ||
+      !formData.jobCategory
     ) {
-      toast.error("Please fill in required fields ❌");
+      toast.error("Please fill in all required fields ❌");
       return;
     }
 
+    // Title validations
+    if (formData.title.length < 3) {
+      toast.error("Title must be at least 3 characters ❌");
+      return;
+    }
+    if (formData.title.length > 35) {
+      toast.error("Title must be less than 100 characters ❌");
+      return;
+    }
+    if (!/^[a-zA-Z0-9\s\-&.,!()]+$/.test(formData.title)) {
+      toast.error("Title contains invalid characters ❌");
+      return;
+    }
+
+    // Description validations
+    if (formData.description.length < 10) {
+      toast.error("Description must be at least 10 characters ❌");
+      return;
+    }
+    if (formData.description.length > 2000) {
+      toast.error("Description must be less than 2000 characters ❌");
+      return;
+    }
+
+    // Location validations
+    if (formData.location.length < 2) {
+      toast.error("Location must be at least 2 characters ❌");
+      return;
+    }
+    if (formData.location.length > 100) {
+      toast.error("Location must be less than 100 characters ❌");
+      return;
+    }
+
+    // Category validations
+    if (showCustomCategory && formData.customCategory) {
+      if (formData.customCategory.length < 2) {
+        toast.error("Custom category must be at least 2 characters ❌");
+        return;
+      }
+      if (formData.customCategory.length > 50) {
+        toast.error("Custom category must be less than 50 characters ❌");
+        return;
+      }
+    } else if (!formData.jobCategory) {
+      toast.error("Please select a job category ❌");
+      return;
+    }
+
+    // Salary validation (if provided)
+    if (formData.salary) {
+      if (!/^[\d\s,\-–$€£¥₽₴₸₩]+$/.test(formData.salary)) {
+        toast.error("Salary contains invalid characters ❌");
+        return;
+      }
+      if (formData.salary.length > 50) {
+        toast.error("Salary must be less than 50 characters ❌");
+        return;
+      }
+    }
+
+    // Requirements validation (if provided)
+    if (formData.requirements && formData.requirements.length > 1000) {
+      toast.error("Requirements must be less than 1000 characters ❌");
+      return;
+    }
+    if (!formData.applicationDeadline) {
+      toast.error("Please select an application deadline ❌");
+    }
+    // Deadline validation (if provided)
+    if (formData.applicationDeadline) {
+      const selectedDate = new Date(formData.applicationDeadline);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0); // Reset time for accurate comparison
+
+      if (selectedDate < today) {
+        toast.error("Deadline cannot be in the past ❌");
+        return;
+      }
+
+      const maxDate = new Date();
+      maxDate.setFullYear(maxDate.getFullYear() + 1); // 1 year from now
+      if (selectedDate > maxDate) {
+        toast.error("Deadline cannot be more than 1 year in the future ❌");
+        return;
+      }
+    }
+
+    // Employment type validation (if provided)
+    if (
+      formData.employmentType &&
+      !EMPLOYMENT_TYPES.includes(formData.employmentType as EmploymentType)
+    ) {
+      toast.error("Please select a valid employment type ❌");
+      return;
+    }
+
+    const submissionData = {
+      ...formData,
+      jobCategory:
+        showCustomCategory && formData.customCategory
+          ? formData.customCategory.trim()
+          : formData.jobCategory,
+      title: formData.title.trim(),
+      description: formData.description.trim(),
+      location: formData.location.trim(),
+      requirements: formData.requirements?.trim() || "",
+      salary: formData.salary?.trim() || "",
+      applicationDeadline: formData.applicationDeadline || "",
+    };
+    console.log(submissionData);
     try {
-      await axios.post(`${FRONT_URL}/api/vacancies`, formData, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
+      const imageName = await getCompanyImageName(userData?.id || "");
+      await axios.post(
+        `${FRONT_URL}/api/vacancies`,
+        {
+          ...submissionData,
+          companyId: userData?.id,
+          companyName: userData?.companyName,
+          companyLogo: imageName,
         },
-      });
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
       toast.success("Vacancy posted successfully 🎉");
-      navigate("/vacancies");
+
+      handleFieldReset();
     } catch (err: unknown) {
       if (axios.isAxiosError(err)) {
-        toast.error(err.response?.data.message || "Failed to post vacancy ❌");
+        const errorMessage =
+          err.response?.data?.message ||
+          err.response?.data?.error ||
+          "Failed to post vacancy";
+        toast.error(`${errorMessage} ❌`);
       } else {
         toast.error("An unexpected error occurred ❌");
       }
+      console.error("Submission error:", err);
     }
   };
 
@@ -94,6 +298,53 @@ function AddVacancy() {
                   />
                 </div>
 
+                {/* Category */}
+                <div>
+                  <label
+                    htmlFor="jobCategory"
+                    className="block text-sm font-medium text-gray-700"
+                  >
+                    Job Category *
+                  </label>
+                  <select
+                    id="jobCategory"
+                    name="jobCategory"
+                    value={formData.jobCategory}
+                    onChange={handleChange}
+                    className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                    required
+                  >
+                    <option value="">Select a category</option>
+                    {COMMON_CATEGORIES.map((category) => (
+                      <option key={category} value={category}>
+                        {category}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Custom Category Input (shown when "Other" is selected) */}
+                {showCustomCategory && (
+                  <div>
+                    <label
+                      htmlFor="customCategory"
+                      className="block text-sm font-medium text-gray-700"
+                    >
+                      Specify Category *
+                    </label>
+                    <input
+                      type="text"
+                      id="customCategory"
+                      name="customCategory"
+                      value={formData.customCategory}
+                      onChange={handleChange}
+                      className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                      placeholder="Enter custom category"
+                      required={showCustomCategory}
+                    />
+                  </div>
+                )}
+
                 {/* Location */}
                 <div>
                   <label
@@ -113,38 +364,73 @@ function AddVacancy() {
                   />
                 </div>
 
-                {/* Salary */}
+                {/* Employment Type */}
+                <div>
+                  <label
+                    htmlFor="employmentType"
+                    className="block text-sm font-medium text-gray-700"
+                  >
+                    Employment Type
+                  </label>
+                  <select
+                    id="employmentType"
+                    name="employmentType"
+                    value={formData.employmentType}
+                    onChange={handleChange}
+                    className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                  >
+                    <option value="">Select employment type</option>
+                    {EMPLOYMENT_TYPES.map((type) => (
+                      <option key={type} value={type}>
+                        {type}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Monthly Salary */}
                 <div>
                   <label
                     htmlFor="salary"
                     className="block text-sm font-medium text-gray-700"
                   >
-                    Salary Range
+                    Monthly Salary
                   </label>
-                  <input
-                    type="text"
-                    id="salary"
-                    name="salary"
-                    value={formData.salary}
-                    onChange={handleChange}
-                    className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-                    placeholder="e.g. $50,000 - $70,000"
-                  />
+                  <div className="mt-1 relative rounded-md shadow-sm">
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                      <span className="text-gray-500 sm:text-sm">$</span>
+                    </div>
+                    <input
+                      type="text"
+                      id="salary"
+                      name="salary"
+                      value={formData.salary}
+                      onChange={handleChange}
+                      className="block w-full pl-7 pr-12 border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                      placeholder="e.g. 3000 - 5000"
+                    />
+                    <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                      <span className="text-gray-500 sm:text-sm">/month</span>
+                    </div>
+                  </div>
+                  <p className="mt-1 text-xs text-gray-500">
+                    Enter monthly salary range (e.g., 3000 - 5000)
+                  </p>
                 </div>
 
                 {/* Deadline */}
                 <div>
                   <label
-                    htmlFor="deadline"
+                    htmlFor="applicationDeadline"
                     className="block text-sm font-medium text-gray-700"
                   >
                     Application Deadline
                   </label>
                   <input
                     type="date"
-                    id="deadline"
-                    name="deadline"
-                    value={formData.deadline}
+                    id="applicationDeadline"
+                    name="applicationDeadline"
+                    value={formData.applicationDeadline}
                     onChange={handleChange}
                     className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
                   />

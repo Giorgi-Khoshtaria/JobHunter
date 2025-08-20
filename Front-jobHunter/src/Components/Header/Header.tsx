@@ -4,9 +4,12 @@ import { faBars, faXmark } from "@fortawesome/free-solid-svg-icons";
 import logo from "../../assets/jobHunter-logo.png";
 import { useAuth } from "../../Context/authContect";
 import { useNavigate } from "react-router-dom";
+import UserIcon from "../../../public/usericon.png";
+import { getCompanyImageName } from "../../Utils/userUtils/userUtils";
 
 function Header() {
-  const { isAuthenticated, logout } = useAuth();
+  const { isAuthenticated, logout, userData, setCompanyImage, companyImage } =
+    useAuth();
   const [open, setOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [profileModalOpen, setProfileModalOpen] = useState(false);
@@ -16,14 +19,18 @@ function Header() {
 
   const buttonRef = useRef<HTMLButtonElement>(null);
   const [companyName, setCompanyName] = useState<string | null>(null);
+
   const navigate = useNavigate();
+
   useEffect(() => {
-    if (isAuthenticated) {
-      const storedData = localStorage.getItem("userData");
-      console.log(storedData);
-      setCompanyName(storedData ? JSON.parse(storedData).companyName : null);
+    if (isAuthenticated && userData?.id) {
+      // Set company name
+      setCompanyName(userData.companyName || null);
+
+      // Fetch company image filename from backend
+      getCompanyImageName(userData.id, setCompanyImage);
     }
-  }, [isAuthenticated]);
+  }, [isAuthenticated, userData]);
 
   const handleLogout = () => {
     setProfileModalOpen(false);
@@ -96,9 +103,18 @@ function Header() {
             <div
               ref={companyNameRef} // Add ref here
               onClick={() => setProfileModalOpen(!profileModalOpen)}
-              className="cursor-pointer"
+              className="cursor-pointer flex items-center gap-2"
             >
               <p className="text-white">{companyName}</p>
+              <img
+                src={
+                  companyImage
+                    ? `../../../public/uploads/${companyImage}`
+                    : UserIcon
+                }
+                alt="userIcon"
+                className="w-8 h-8 rounded-full object-cover"
+              />
             </div>
           ) : (
             <div className="relative max-sm:hidden">

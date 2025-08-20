@@ -4,6 +4,7 @@ interface UserData {
   id: string;
   companyName: string;
   email: string;
+  companyImage?: string;
 }
 
 interface AuthContextType {
@@ -12,6 +13,8 @@ interface AuthContextType {
   login: (userData: UserData) => void;
   logout: () => void;
   isAuthenticated: boolean;
+  setCompanyImage: React.Dispatch<React.SetStateAction<string | null>>;
+  companyImage: string | null;
 }
 
 // eslint-disable-next-line react-refresh/only-export-components
@@ -30,7 +33,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     const storedUserData = localStorage.getItem("userData");
     return storedUserData ? JSON.parse(storedUserData) : null;
   });
-
+  const [companyImage, setCompanyImage] = useState<string | null>(null);
   useEffect(() => {
     if (userData) {
       setIsAuthenticated(true);
@@ -53,7 +56,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
   return (
     <AuthContext.Provider
-      value={{ userData, setUserData, login, logout, isAuthenticated }}
+      value={{
+        userData,
+        setUserData,
+        login,
+        logout,
+        isAuthenticated,
+        setCompanyImage,
+        companyImage,
+      }}
     >
       {children}
     </AuthContext.Provider>
