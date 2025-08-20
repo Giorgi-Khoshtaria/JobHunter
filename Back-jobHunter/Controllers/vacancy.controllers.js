@@ -51,3 +51,16 @@ export const postVacancy = async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 };
+
+export const getAllVacancies = async (req, res) => {
+  try {
+    const vacancies = await Vacancy.find();
+    if (!vacancies || vacancies.length === 0) {
+      return res.status(404).json({ message: "No vacancies found" });
+    }
+    res.status(200).json(vacancies);
+  } catch (error) {
+    console.error("Error fetching vacancies:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};

@@ -21,7 +21,7 @@ app.use(express.urlencoded({ limit: "10mb", extended: true })); // for form data
 // Routes
 app.use("/api", authRouter);
 app.use("/user", userRouter);
-app.use("/api", vacancyRouter);
+app.use("/vacancies", vacancyRouter);
 
 // MongoDB connection
 mongoose
