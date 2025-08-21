@@ -21,3 +21,22 @@ export interface Vacancy {
   employmentType?: string;
   jobCategory?: string;
 }
+
+export interface VacancyDetailed {
+  _id: string;
+  title: string;
+  companyName: string;
+  companyLogo?: string | null;
+  description: string;
+  requirements: string;
+  employmentType: string;
+  jobCategory: string;
+  location: string;
+  salary: number;
+  createdAt: string;
+  updatedAt: string;
+  applicationDeadline: string;
+  isActive: boolean;
+  companyId?: string;
+  __v?: number;
+}

@@ -81,3 +81,16 @@ export const getCompanyImageName = async (
     return null;
   }
 };
+
+export const getVacancyById = async (vacancyId: string) => {
+  try {
+    const response = await axios.get(
+      `${FRONT_URL}/vacancies/vacancyById/${vacancyId}`
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching vacancy by ID:", error);
+    toast.error("Failed to fetch vacancy details.");
+    return null;
+  }
+};

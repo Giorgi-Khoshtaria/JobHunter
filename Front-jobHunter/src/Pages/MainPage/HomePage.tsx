@@ -1,5 +1,5 @@
 import React from "react";
-import Vacancies from "./Vacancies";
+import Vacancies from "../Vacancy/Vacancies";
 
 function HomePage() {
   return (

@@ -1,5 +1,6 @@
 import React from "react";
 import type { Vacancy } from "../../Types/userTypes";
+import { useNavigate } from "react-router-dom";
 
 function VacancyCard({
   title,
@@ -7,9 +8,14 @@ function VacancyCard({
   createdAt,
   applicationDeadline,
   companyLogo,
+  _id,
 }: Vacancy) {
+  const navigate = useNavigate();
   return (
     <div
+      onClick={() => {
+        navigate(`/vacancy/${title}/${_id}`);
+      }}
       className="cursor-pointer grid grid-cols-4 items-center gap-4 py-4 px-4 hover:bg-gray-50 border-b
       max-[1024px]:grid-cols-2 border-gray-200  max-[550px]:grid-cols-1"
     >
