@@ -11,3 +11,13 @@ export type UserProfileData = {
   createdAt?: string;
   updatedAt?: string;
 };
+export interface Vacancy {
+  _id: string;
+  title: string;
+  companyName: string;
+  companyLogo?: string;
+  createdAt: string;
+  applicationDeadline: string;
+  employmentType?: string;
+  jobCategory?: string;
+}
