@@ -114,8 +114,7 @@ export const editProfile = async (req, res) => {
     return res.status(500).json({ message: "Internal server error" });
   }
 };
-// Return JSON with companyImage filename
-// Just return the companyImage filename
+
 export const getCompanyImageByUserId = async (req, res) => {
   const userId = req.params.userId;
 
