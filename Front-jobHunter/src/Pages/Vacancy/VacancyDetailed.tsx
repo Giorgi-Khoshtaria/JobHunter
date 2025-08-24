@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { getVacancyById } from "../../Utils/userUtils/userUtils";
-import type { VacancyDetailed } from "../../Types/userTypes";
+import type { VacancyDetailedType } from "../../Types/userTypes";
 
 function VacancyDetailed() {
   const { id } = useParams<{ id: string }>();
-  const [vacancy, setVacancy] = useState<VacancyDetailed>();
+  const [vacancy, setVacancy] = useState<VacancyDetailedType>();
 
   const fetchVacancy = async (): Promise<void> => {
     if (id) {
@@ -29,9 +29,7 @@ function VacancyDetailed() {
   return (
     <div className="flex justify-center items-center py-10 px-4 bg-gray-100 min-h-screen">
       <div className="w-full max-w-5xl bg-white shadow-lg rounded-2xl p-8 border border-gray-200">
-        {/* Company Info */}
         <div className="flex flex-col md:flex-row items-center md:items-start gap-6">
-          {/* Company Logo */}
           <div className="w-28 h-28 rounded-xl bg-gray-100 flex justify-center items-center shadow-md">
             {vacancy.companyLogo ? (
               <img
@@ -44,7 +42,6 @@ function VacancyDetailed() {
             )}
           </div>
 
-          {/* Title & Company */}
           <div className="flex-1 text-center md:text-left">
             <h1 className="text-2xl md:text-3xl font-bold text-gray-900">
               {vacancy.title}
@@ -59,7 +56,6 @@ function VacancyDetailed() {
           </div>
         </div>
 
-        {/* Job Info */}
         <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="bg-gray-50 p-4 rounded-xl shadow-sm border border-gray-200">
             <p className="text-gray-600 text-sm">Job Category</p>
@@ -89,7 +85,6 @@ function VacancyDetailed() {
           </div>
         </div>
 
-        {/* Description */}
         <div className="mt-10">
           <h2 className="text-xl font-semibold text-gray-900">
             Job Description
@@ -99,7 +94,6 @@ function VacancyDetailed() {
           </p>
         </div>
 
-        {/* Requirements */}
         <div className="mt-8">
           <h2 className="text-xl font-semibold text-gray-900">Requirements</h2>
           <p className="text-gray-700 mt-3 leading-relaxed">
@@ -107,11 +101,13 @@ function VacancyDetailed() {
           </p>
         </div>
 
-        {/* Apply Button */}
         <div className="mt-10 flex justify-center md:justify-end">
-          <button className="bg-blue-600 hover:bg-blue-700 transition text-white font-semibold px-6 py-3 rounded-xl shadow-md">
+          <a
+            href={`/vacancy/${vacancy.title}/${vacancy._id}/apply`}
+            className=" cursor-pointer bg-blue-600 hover:bg-blue-700 transition text-white font-semibold px-6 py-3 rounded-xl shadow-md"
+          >
             Apply Now
-          </button>
+          </a>
         </div>
       </div>
     </div>

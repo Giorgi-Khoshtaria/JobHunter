@@ -22,7 +22,7 @@ export interface Vacancy {
   jobCategory?: string;
 }
 
-export interface VacancyDetailed {
+export interface VacancyDetailedType {
   _id: string;
   title: string;
   companyName: string;

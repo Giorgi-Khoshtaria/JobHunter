@@ -13,6 +13,7 @@ import AddVacancy from "./Pages/Vacancy/AddVacancy";
 import CompanyProfile from "./Pages/Profile/ComanyProfile";
 import CompanyProfileEdit from "./Pages/Profile/CompanyProfileEdit";
 import VacancyDetailed from "./Pages/Vacancy/VacancyDetailed";
+import VacancyApply from "./Pages/Vacancy/VacancyApply";
 
 const router = createBrowserRouter([
   {
@@ -46,6 +47,10 @@ const router = createBrowserRouter([
       {
         path: "/vacancy/:title/:id",
         element: <VacancyDetailed />,
+      },
+      {
+        path: "/vacancy/:title/:id/apply",
+        element: <VacancyApply />,
       },
     ],
   },

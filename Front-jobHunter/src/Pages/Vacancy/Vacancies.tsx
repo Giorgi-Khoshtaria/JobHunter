@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useAuth } from "../../Context/authContect";
+
 import { getAllVacancies } from "../../Utils/vacanciesUtils/VacansiesUtils";
 import VacancyCard from "./VacancyCard";
 import type { Vacancy } from "../../Types/userTypes";
@@ -39,17 +39,14 @@ const Vacancies: React.FC = () => {
   const [category, setCategory] = useState("");
   const [employmentType, setEmploymentType] = useState("");
   const [vacansyName, setVacansyName] = useState("");
-  const { isAuthenticated } = useAuth();
 
   // Fetch vacancies
   useEffect(() => {
-    if (isAuthenticated) {
-      getAllVacancies((data) => {
-        setVacancies(data);
-        setFilteredVacancies(data);
-      });
-    }
-  }, [isAuthenticated]);
+    getAllVacancies((data) => {
+      setVacancies(data);
+      setFilteredVacancies(data);
+    });
+  }, []);
 
   // Filter by category & employmentType
   useEffect(() => {
