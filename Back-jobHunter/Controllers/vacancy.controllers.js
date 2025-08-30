@@ -157,3 +157,75 @@ export const applyForVacancy = async (req, res) => {
     return res.status(500).json({ message: "Server error" });
   }
 };
+
+export const getVacanciesByCompanyId = async (req, res) => {
+  try {
+    const { companyId } = req.params;
+    const vacancies = await Vacancy.find({ companyId });
+    if (!vacancies || vacancies.length === 0) {
+      return res
+        .status(404)
+        .json({ message: "No vacancies found for this company" });
+    }
+    res.status(200).json(vacancies);
+  } catch (error) {
+    console.error("Error fetching vacancies by company ID:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+export const updateVacancy = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const {
+      title,
+      description,
+      location,
+      employmentType,
+      jobCategory,
+      salary,
+      requirements,
+      applicationDeadline,
+    } = req.body;
+
+    // Build the fields to update
+    const updatedFields = {
+      title,
+      description,
+      location,
+      employmentType,
+      jobCategory,
+      salary,
+      requirements,
+      applicationDeadline,
+    };
+
+    // Update vacancy
+    const updatedVacancy = await Vacancy.findByIdAndUpdate(id, updatedFields, {
+      new: true,
+    });
+
+    if (!updatedVacancy) {
+      return res.status(404).json({ message: "Vacancy not found" });
+    }
+
+    res.status(200).json(updatedVacancy);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+export const delateVacancy = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const deletedVacancy = await Vacancy.findByIdAndDelete(id);
+    if (!deletedVacancy) {
+      return res.status(404).json({ message: "Vacancy not found" });
+    }
+    res.status(200).json({ message: "Vacancy deleted successfully" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
