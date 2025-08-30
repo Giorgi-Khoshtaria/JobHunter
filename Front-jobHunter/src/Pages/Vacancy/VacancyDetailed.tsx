@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { getVacancyById } from "../../Utils/userUtils/userUtils";
+import { getVacancyById } from "../../Utils/vacanciesUtils/VacansiesUtils";
 import type { VacancyDetailedType } from "../../Types/userTypes";
 
 function VacancyDetailed() {

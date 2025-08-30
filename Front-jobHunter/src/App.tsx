@@ -14,6 +14,8 @@ import CompanyProfile from "./Pages/Profile/ComanyProfile";
 import CompanyProfileEdit from "./Pages/Profile/CompanyProfileEdit";
 import VacancyDetailed from "./Pages/Vacancy/VacancyDetailed";
 import VacancyApply from "./Pages/Vacancy/VacancyApply";
+import MyVacancies from "./Pages/Vacancy/MyVacancies";
+import UpdateVacancy from "./Pages/Vacancy/UpdateVacancy";
 
 const router = createBrowserRouter([
   {
@@ -49,8 +51,16 @@ const router = createBrowserRouter([
         element: <VacancyDetailed />,
       },
       {
+        path: "/vacancy/update/:id",
+        element: <UpdateVacancy />,
+      },
+      {
         path: "/vacancy/:title/:id/apply",
         element: <VacancyApply />,
+      },
+      {
+        path: "/myVacancy/:companyId",
+        element: <MyVacancies />,
       },
     ],
   },

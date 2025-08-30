@@ -147,6 +147,10 @@ function Header() {
           <a href="/addVacancy" className="hover:underline">
             Add Vacancy
           </a>
+          <a href={`/myVacancy/${userData?.id}`} className="hover:underline">
+            My Vacancies
+          </a>
+
           <button onClick={handleLogout} className="hover:underline text-left">
             LogOut
           </button>

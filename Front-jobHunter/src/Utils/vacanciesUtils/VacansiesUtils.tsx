@@ -76,3 +76,113 @@ export const applyForVacancy = async (
     console.error("Submission error:", err);
   }
 };
+export const getVacancyById = async (vacancyId: string) => {
+  try {
+    const response = await axios.get(
+      `${FRONT_URL}/vacancies/vacancyById/${vacancyId}`
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching vacancy by ID:", error);
+    toast.error("Failed to fetch vacancy details.");
+    return null;
+  }
+};
+
+export const myVacancies = async (companyId: string) => {
+  try {
+    const token = localStorage.getItem("token");
+    const response = await axios.get(
+      `${FRONT_URL}/vacancies/myVacancies/${companyId}`,
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      }
+    );
+
+    return response.data;
+  } catch (err: unknown) {
+    if (axios.isAxiosError(err)) {
+      const errorMessage =
+        err.response?.data?.message ||
+        err.response?.data?.error ||
+        "Failed to fetch vacancies";
+      toast.error(`${errorMessage} ❌`);
+    } else {
+      toast.error("An unexpected error occurred ❌");
+    }
+    console.error("Fetching error:", err);
+  }
+};
+export const updateVacancy = async (
+  id: string,
+  updatedData: {
+    title: string;
+    description: string;
+    location: string;
+    employmentType: string;
+    jobCategory: string;
+    salary: number;
+    requirements: string;
+    applicationDeadline: string;
+  }
+) => {
+  try {
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      toast.error("You must be logged in to update a vacancy ❌");
+      return;
+    }
+    const response = await axios.put(
+      `${FRONT_URL}/vacancies/updateVacancy/${id}`,
+      updatedData,
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      }
+    );
+    return response.data;
+  } catch (err: unknown) {
+    if (axios.isAxiosError(err)) {
+      const errorMessage =
+        err.response?.data?.message ||
+        err.response?.data?.error ||
+        "Failed to fetch vacancies";
+      toast.error(`${errorMessage} ❌`);
+    } else {
+      toast.error("An unexpected error occurred ❌");
+    }
+    console.error("Fetching error:", err);
+  }
+};
+
+export const deleteVacancy = async (id: string) => {
+  try {
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      toast.error("You must be logged in to delete a vacancy ❌");
+      return;
+    }
+
+    const response = await axios.delete(
+      `${FRONT_URL}/vacancies/deleteVacancy/${id}`,
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      }
+    );
+
+    toast.success("Vacancy deleted successfully ✅");
+    return response.data;
+  } catch (err: unknown) {
+    if (axios.isAxiosError(err)) {
+      const errorMessage =
+        err.response?.data?.message ||
+        err.response?.data?.error ||
+        "Failed to fetch vacancies";
+      toast.error(`${errorMessage} ❌`);
+    } else {
+      toast.error("An unexpected error occurred ❌");
+    }
+    console.error("Fetching error:", err);
+  }
+};
